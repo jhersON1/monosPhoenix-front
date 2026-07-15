@@ -1,0 +1,57 @@
+<div class="header-row">
+  <h2>Detalle del cliente</h2>
+  <a mat-stroked-button routerLink="/customers">← Volver al listado</a>
+</div>
+
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="40" />
+    <p class="loading-text">Cargando cliente...</p>
+  </div>
+} @else if (notFound()) {
+  <div class="state-card error-state">
+    <p>Cliente no encontrado.</p>
+  </div>
+} @else if (customer(); as c) {
+  <mat-card class="detail-card">
+    <mat-card-header>
+      <mat-card-title>{{ c.fullName }}</mat-card-title>
+      <mat-card-subtitle>
+        <span class="status-chip" [class.active]="c.isActive" [class.inactive]="!c.isActive">
+          {{ c.isActive ? 'Activo' : 'Inactivo' }}
+        </span>
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">ID</span>
+          <span class="detail-value mono">{{ c.id }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Email</span>
+          <span class="detail-value">{{ c.email }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Teléfono</span>
+          <span class="detail-value">{{ c.phone ?? 'Sin registro' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Creado</span>
+          <span class="detail-value">{{ c.createdAt | date:'fullDate' }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-divider />
+
+    <mat-card-actions>
+      @if (c.isActive) {
+        <a mat-raised-button color="primary" [routerLink]="['/customers', c.id, 'edit']">
+          Editar cliente
+        </a>
+      }
+    </mat-card-actions>
+  </mat-card>
+}

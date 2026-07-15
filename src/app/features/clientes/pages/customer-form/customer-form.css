@@ -1,0 +1,48 @@
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.header-row h2 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.form-card {
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0 0 0 / 0.06);
+}
+
+.customer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.submit-error {
+  background: #fbe9e7;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+}
+
+.submit-error p {
+  color: #c62828;
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}

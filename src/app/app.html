@@ -1,7 +1,12 @@
 <mat-toolbar color="primary" class="app-toolbar">
-  <a routerLink="/products" class="brand">{{ title }}</a>
+  <a routerLink="/" class="brand">{{ title }}</a>
   <span class="toolbar-spacer"></span>
-  <span class="toolbar-subtitle">Gestión de productos</span>
+  <nav class="toolbar-nav">
+    <a routerLink="/products" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Productos</a>
+    <a routerLink="/orders" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Pedidos</a>
+    <a routerLink="/customers" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Clientes</a>
+  </nav>
+  <span class="toolbar-subtitle">Productos · Pedidos · Clientes</span>
 </mat-toolbar>
 
 <div class="page-container">

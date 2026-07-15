@@ -1,0 +1,102 @@
+<div class="header-row">
+  <h2>Detalle del pedido</h2>
+  <a mat-stroked-button routerLink="/orders">← Volver al listado</a>
+</div>
+
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="40" />
+    <p class="loading-text">Cargando pedido...</p>
+  </div>
+} @else if (notFound()) {
+  <div class="state-card error-state">
+    <p>Pedido no encontrado.</p>
+  </div>
+} @else if (order(); as o) {
+  <mat-card class="detail-card">
+    <mat-card-header>
+      <mat-card-title>Pedido #{{ o.id | slice:0:8 }}…</mat-card-title>
+      <mat-card-subtitle>
+        <span class="status-chip" [class]="o.status.toLowerCase()">
+          {{ statusLabel(o.status) }}
+        </span>
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">ID</span>
+          <span class="detail-value mono">{{ o.id }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Cliente</span>
+          <span class="detail-value">{{ o.customer?.fullName ?? '—' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Email</span>
+          <span class="detail-value">{{ o.customer?.email ?? '—' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Total</span>
+          <span class="detail-value price">$ {{ o.total | number:'1.2-2' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Creado</span>
+          <span class="detail-value">{{ o.createdAt | date:'fullDate' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Actualizado</span>
+          <span class="detail-value">{{ o.updatedAt | date:'fullDate' }}</span>
+        </div>
+      </div>
+
+      <mat-divider class="section-divider" />
+
+      <h3 class="section-title">Productos</h3>
+      <div class="table-card">
+        <mat-table [dataSource]="o.details" class="detail-table">
+          <ng-container matColumnDef="product">
+            <mat-header-cell *matHeaderCellDef>Producto</mat-header-cell>
+            <mat-cell *matCellDef="let d">{{ d.product?.name ?? d.productId }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="amount">
+            <mat-header-cell *matHeaderCellDef>Cantidad</mat-header-cell>
+            <mat-cell *matCellDef="let d">{{ d.amount }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="subtotal">
+            <mat-header-cell *matHeaderCellDef>Subtotal</mat-header-cell>
+            <mat-cell *matCellDef="let d">$ {{ d.subtotal | number:'1.2-2' }}</mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="detailColumns" />
+          <mat-row *matRowDef="let row; columns: detailColumns" />
+        </mat-table>
+      </div>
+
+      <mat-divider class="section-divider" />
+
+      <h3 class="section-title">Actualizar estado</h3>
+      <div class="status-update-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Estado</mat-label>
+          <mat-select [(value)]="selectedStatus">
+            @for (opt of statusOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="selectedStatus() === o.status || savingStatus()"
+          (click)="updateStatus()"
+        >
+          {{ savingStatus() ? 'Guardando...' : 'Actualizar estado' }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+}
