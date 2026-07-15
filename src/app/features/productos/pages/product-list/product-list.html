@@ -1,0 +1,84 @@
+<div class="header-row">
+  <div class="header-title">
+    <h2>Productos</h2>
+    @if (!loading() && products().length > 0) {
+      <span class="count-badge">{{ products().length }} registrado{{ products().length !== 1 ? 's' : '' }}</span>
+    }
+  </div>
+  <a mat-raised-button color="primary" routerLink="/products/new">
+    + Nuevo producto
+  </a>
+</div>
+
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="40" />
+    <p class="loading-text">Cargando productos...</p>
+  </div>
+} @else if (error(); as err) {
+  <div class="state-card error-state">
+    <p>{{ err }}</p>
+  </div>
+} @else if (products().length === 0) {
+  <div class="state-card empty-state">
+    <div class="empty-icon">📦</div>
+    <p class="empty-title">No hay productos registrados</p>
+    <p class="empty-hint">Comienza creando un nuevo producto.</p>
+    <a mat-raised-button color="primary" routerLink="/products/new">Crear producto</a>
+  </div>
+} @else {
+  <div class="table-card">
+    <mat-table [dataSource]="products()" class="product-table">
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
+        <mat-cell *matCellDef="let p">{{ p.name }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="description">
+        <mat-header-cell *matHeaderCellDef>Descripción</mat-header-cell>
+        <mat-cell *matCellDef="let p" class="cell-description">{{ p.description ?? '—' }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="price">
+        <mat-header-cell *matHeaderCellDef>Precio</mat-header-cell>
+        <mat-cell *matCellDef="let p" class="cell-numeric">{{ p.price | number:'1.2-2' }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="stock">
+        <mat-header-cell *matHeaderCellDef>Stock</mat-header-cell>
+        <mat-cell *matCellDef="let p" class="cell-numeric">{{ p.stock }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="isActive">
+        <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
+        <mat-cell *matCellDef="let p">
+          <span class="status-chip" [class.active]="p.isActive" [class.inactive]="!p.isActive">
+            {{ p.isActive ? 'Activo' : 'Inactivo' }}
+          </span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="createdAt">
+        <mat-header-cell *matHeaderCellDef>Fecha de creación</mat-header-cell>
+        <mat-cell *matCellDef="let p">{{ p.createdAt | date:'dd/MM/yyyy' }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+        <mat-cell *matCellDef="let p" class="actions-cell">
+          <a mat-icon-button [routerLink]="['/products', p.id]" matTooltip="Ver detalle">
+            <mat-icon>visibility</mat-icon>
+          </a>
+          @if (p.isActive) {
+            <button mat-icon-button color="warn" (click)="confirmDeactivate(p.id)" matTooltip="Desactivar producto">
+              <mat-icon>toggle_off</mat-icon>
+            </button>
+          }
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns" />
+      <mat-row *matRowDef="let row; columns: displayedColumns" />
+    </mat-table>
+  </div>
+}
