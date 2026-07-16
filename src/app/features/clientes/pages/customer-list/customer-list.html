@@ -1,0 +1,84 @@
+<div class="header-row">
+  <div class="header-title">
+    <h2>Clientes</h2>
+    @if (!loading() && customers().length > 0) {
+      <span class="count-badge">{{ customers().length }} registrado{{ customers().length !== 1 ? 's' : '' }}</span>
+    }
+  </div>
+  <a mat-raised-button color="primary" routerLink="/customers/new">
+    + Nuevo cliente
+  </a>
+</div>
+
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="40" />
+    <p class="loading-text">Cargando clientes...</p>
+  </div>
+} @else if (error(); as err) {
+  <div class="state-card error-state">
+    <p>{{ err }}</p>
+  </div>
+} @else if (customers().length === 0) {
+  <div class="state-card empty-state">
+    <div class="empty-icon">
+      <mat-icon>people_outline</mat-icon>
+    </div>
+    <p class="empty-title">No hay clientes registrados</p>
+    <p class="empty-hint">Comienza creando un nuevo cliente.</p>
+    <a mat-raised-button color="primary" routerLink="/customers/new">Crear cliente</a>
+  </div>
+} @else {
+  <div class="table-card">
+    <mat-table [dataSource]="customers()" class="customer-table">
+      <ng-container matColumnDef="fullName">
+        <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
+        <mat-cell *matCellDef="let c">{{ c.fullName }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
+        <mat-cell *matCellDef="let c">{{ c.email }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="phone">
+        <mat-header-cell *matHeaderCellDef>Teléfono</mat-header-cell>
+        <mat-cell *matCellDef="let c">{{ c.phone ?? '—' }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="isActive">
+        <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
+        <mat-cell *matCellDef="let c">
+          <span class="status-chip" [class.active]="c.isActive" [class.inactive]="!c.isActive">
+            {{ c.isActive ? 'Activo' : 'Inactivo' }}
+          </span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="createdAt">
+        <mat-header-cell *matHeaderCellDef>Fecha de creación</mat-header-cell>
+        <mat-cell *matCellDef="let c">{{ c.createdAt | date:'dd/MM/yyyy' }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+        <mat-cell *matCellDef="let c" class="actions-cell">
+          <a mat-icon-button [routerLink]="['/customers', c.id]" matTooltip="Ver detalle">
+            <mat-icon>visibility</mat-icon>
+          </a>
+          <a mat-icon-button [routerLink]="['/customers', c.id, 'edit']" matTooltip="Editar cliente">
+            <mat-icon>edit</mat-icon>
+          </a>
+          @if (c.isActive) {
+            <button mat-icon-button color="warn" (click)="confirmDeactivate(c.id)" matTooltip="Desactivar cliente">
+              <mat-icon>toggle_off</mat-icon>
+            </button>
+          }
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns" />
+      <mat-row *matRowDef="let row; columns: displayedColumns" />
+    </mat-table>
+  </div>
+}

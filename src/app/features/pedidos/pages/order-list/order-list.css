@@ -1,0 +1,143 @@
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-title h2 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.count-badge {
+  background: #e8eaf6;
+  color: #3f51b5;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  line-height: 1.4;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4rem 0;
+  gap: 1rem;
+}
+
+.loading-text {
+  color: #888;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.state-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0 0 0 / 0.06);
+}
+
+.error-state {
+  border-left: 4px solid #e53935;
+  color: #c62828;
+  font-weight: 500;
+  text-align: left;
+}
+
+.empty-state {
+  padding: 3rem 2rem;
+}
+
+.empty-icon {
+  margin-bottom: 0.5rem;
+}
+
+.empty-icon mat-icon {
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  line-height: 3rem;
+}
+
+.empty-title {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #444;
+  margin: 0 0 0.25rem;
+}
+
+.empty-hint {
+  font-size: 0.9rem;
+  color: #888;
+  margin: 0 0 1.25rem;
+}
+
+.table-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0 0 0 / 0.06);
+}
+
+.order-table {
+  width: 100%;
+}
+
+.mat-mdc-row:hover {
+  background: #f5f7ff;
+}
+
+.cell-numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+.status-chip {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.status-chip.pending {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.status-chip.confirmed {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-chip.shipped {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-chip.delivered {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.status-chip.cancelled {
+  background: #fbe9e7;
+  color: #c62828;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
