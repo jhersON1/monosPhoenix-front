@@ -10,7 +10,7 @@ commands:
     steps:
       - run:
           name: Install pnpm
-          command: npm install -g pnpm
+          command: sudo npm install -g pnpm
 
   pnpm-install:
     description: 'Install dependencies with pnpm (uses cache)'
