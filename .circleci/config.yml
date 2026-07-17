@@ -75,7 +75,7 @@ jobs:
       - aws-cli/setup
       - run:
           name: Sync to S3
-          command: aws s3 sync dist/phoenix-view-front/ s3://${AWS_S3_BUCKET}/ --delete
+          command: aws s3 sync dist/phoenix-view-front/browser/ s3://${AWS_S3_BUCKET}/ --delete
       - run:
           name: Invalidate CloudFront cache
           command: |
