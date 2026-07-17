@@ -26,10 +26,6 @@
     <mat-card-content>
       <div class="detail-grid">
         <div class="detail-item">
-          <span class="detail-label">ID</span>
-          <span class="detail-value mono">{{ p.id }}</span>
-        </div>
-        <div class="detail-item">
           <span class="detail-label">Descripción</span>
           <span class="detail-value">{{ p.description ?? 'Sin descripción' }}</span>
         </div>
@@ -40,10 +36,6 @@
         <div class="detail-item">
           <span class="detail-label">Stock</span>
           <span class="detail-value stock">{{ p.stock }} unidad{{ p.stock !== 1 ? 'es' : '' }}</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">Creado</span>
-          <span class="detail-value">{{ p.createdAt | date:'fullDate' }}</span>
         </div>
       </div>
     </mat-card-content>

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -12,7 +12,6 @@ import { Product } from '../../../../domain/entities/product.entity';
   selector: 'app-product-detail',
   imports: [
     RouterLink,
-    DatePipe,
     DecimalPipe,
     MatCardModule,
     MatButtonModule,
