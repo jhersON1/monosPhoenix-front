@@ -38,8 +38,15 @@ jobs:
       - checkout
       - pnpm-install
       - run:
+          name: Install Chromium for tests
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y chromium-browser
+      - run:
           name: Run tests
-          command: pnpm test -- --watch=false --browsers=ChromeHeadless
+          command: npx ng test --watch=false --browsers=ChromeHeadless
+        environment:
+          CHROME_BIN: /usr/bin/chromium-browser
 
   build:
     executor: node/default
