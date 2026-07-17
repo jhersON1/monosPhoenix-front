@@ -1,56 +1,92 @@
-# This config was automatically generated from your source code
-# Stacks detected: deps:node:.
 version: 2.1
+
 orbs:
   node: circleci/node@5
+  aws-cli: circleci/aws-cli@5
+
+commands:
+  install-pnpm:
+    description: 'Install pnpm globally'
+    steps:
+      - run:
+          name: Install pnpm
+          command: npm install -g pnpm
+
+  pnpm-install:
+    description: 'Install dependencies with pnpm (uses cache)'
+    steps:
+      - install-pnpm
+      - restore_cache:
+          name: Restore pnpm cache
+          keys:
+            - v1-pnpm-{{ checksum "pnpm-lock.yaml" }}
+            - v1-pnpm-
+      - run:
+          name: Install dependencies
+          command: pnpm install --frozen-lockfile
+      - save_cache:
+          name: Save pnpm cache
+          key: v1-pnpm-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - node_modules
+            - ~/.pnpm-store
+
 jobs:
-  test-node:
-    # Install node dependencies and run tests
+  test:
     executor: node/default
     steps:
       - checkout
-      - node/install-packages:
-          cache-path: ~/project/node_modules
-          override-ci-command: npm install
+      - pnpm-install
       - run:
           name: Run tests
-          command: npm test --passWithNoTests
-  build-node:
-    # Build node project
+          command: pnpm test -- --watch=false --browsers=ChromeHeadless
+
+  build:
     executor: node/default
     steps:
       - checkout
-      - node/install-packages:
-          cache-path: ~/project/node_modules
-          override-ci-command: npm install
+      - pnpm-install
       - run:
-          command: npm run build
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      # Copy output to artifacts dir
-      - run:
-          name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
+          name: Build application
+          command: pnpm build
+      - persist_to_workspace:
+          root: dist
+          paths:
+            - phoenix-view-front
+
   deploy:
-    # This is an example deploy job, not actually used by the workflow
     docker:
-      - image: cimg/base:stable
+      - image: cimg/node:22.14
     steps:
-      # Replace this with steps to deploy to users
+      - checkout
+      - pnpm-install
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
+          name: Build application
+          command: pnpm build
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_DEFAULT_REGION
+      - run:
+          name: Sync to S3
+          command: aws s3 sync dist/phoenix-view-front/ s3://${AWS_S3_BUCKET}/ --delete
+      - run:
+          name: Invalidate CloudFront cache
+          command: |
+            aws cloudfront create-invalidation \
+              --distribution-id ${AWS_CF_DISTRIBUTION_ID} \
+              --paths "/*"
+
 workflows:
   build-and-test:
     jobs:
-      - test-node
-      - build-node:
+      - test
+      - build:
           requires:
-            - test-node
-    # - deploy:
-    #     requires:
-    #       - build-node
+            - test
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: develop
