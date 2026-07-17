@@ -45,8 +45,8 @@ jobs:
       - run:
           name: Run tests
           command: npx ng test --watch=false --browsers=ChromeHeadless
-        environment:
-          CHROME_BIN: /usr/bin/chromium-browser
+          environment:
+            CHROME_BIN: /usr/bin/chromium-browser
 
   build:
     executor: node/default
