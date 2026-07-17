@@ -15,7 +15,7 @@
 } @else if (order(); as o) {
   <mat-card class="detail-card">
     <mat-card-header>
-      <mat-card-title>Pedido #{{ o.id | slice:0:8 }}…</mat-card-title>
+      <mat-card-title>Pedido de {{ o.customer?.fullName ?? 'cliente sin registro' }}</mat-card-title>
       <mat-card-subtitle>
         <span class="status-chip" [class]="o.status.toLowerCase()">
           {{ statusLabel(o.status) }}
@@ -25,10 +25,6 @@
 
     <mat-card-content>
       <div class="detail-grid">
-        <div class="detail-item">
-          <span class="detail-label">ID</span>
-          <span class="detail-value mono">{{ o.id }}</span>
-        </div>
         <div class="detail-item">
           <span class="detail-label">Cliente</span>
           <span class="detail-value">{{ o.customer?.fullName ?? '—' }}</span>
@@ -40,10 +36,6 @@
         <div class="detail-item">
           <span class="detail-label">Total</span>
           <span class="detail-value price">$ {{ o.total | number:'1.2-2' }}</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">Creado</span>
-          <span class="detail-value">{{ o.createdAt | date:'fullDate' }}</span>
         </div>
         <div class="detail-item">
           <span class="detail-label">Actualizado</span>

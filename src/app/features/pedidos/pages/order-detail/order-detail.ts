@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DatePipe, DecimalPipe, SlicePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -18,7 +18,6 @@ import { Order } from '../../../../domain/entities/order.entity';
     RouterLink,
     DatePipe,
     DecimalPipe,
-    SlicePipe,
     MatCardModule,
     MatButtonModule,
     MatProgressSpinnerModule,
