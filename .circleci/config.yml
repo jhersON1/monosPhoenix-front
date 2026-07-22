@@ -74,9 +74,7 @@ jobs:
           name: Tag and push Docker image to ECR
           command: |
             ECR_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/phoenix-view-front
-            docker tag phoenix-view-front:latest $ECR_URI:latest
             docker tag phoenix-view-front:latest $ECR_URI:${CIRCLE_SHA1}
-            docker push $ECR_URI:latest
             docker push $ECR_URI:${CIRCLE_SHA1}
 
   deploy:
