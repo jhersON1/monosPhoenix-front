@@ -9,5 +9,5 @@ import { MatToolbarModule } from '@angular/material/toolbar';
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = 'Phoenix View';
+  protected readonly title = 'Phoenix View Pro';
 }

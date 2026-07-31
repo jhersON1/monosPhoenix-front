@@ -31,6 +31,16 @@ commands:
             - node_modules
             - ~/.pnpm-store
 
+  ecr-login:
+    description: 'Authenticate Docker to ECR'
+    steps:
+      - run:
+          name: Authenticate Docker to ECR
+          command: |
+            aws ecr get-login-password --region ${AWS_REGION} | \
+              docker login --username AWS --password-stdin \
+              ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+
 jobs:
   test:
     executor: node/default
@@ -50,32 +60,43 @@ jobs:
           environment:
             CHROME_BIN: /usr/bin/google-chrome
 
-  build:
-    executor: node/default
+  build-and-push:
+    machine:
+      image: ubuntu-2204:2024.01.1
     steps:
       - checkout
-      - pnpm-install
+      - aws-cli/setup
+      - ecr-login
       - run:
-          name: Build application
-          command: pnpm build
-      - persist_to_workspace:
-          root: dist
-          paths:
-            - phoenix-view-front
+          name: Build Docker image
+          command: docker build -t phoenix-view-front .
+      - run:
+          name: Tag and push Docker image to ECR
+          command: |
+            ECR_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/phoenix-view-front
+            docker tag phoenix-view-front:latest $ECR_URI:${CIRCLE_SHA1}
+            docker push $ECR_URI:${CIRCLE_SHA1}
 
   deploy:
-    docker:
-      - image: cimg/node:22.14
+    machine:
+      image: ubuntu-2204:2024.01.1
     steps:
       - checkout
-      - pnpm-install
-      - run:
-          name: Build application
-          command: pnpm build
       - aws-cli/setup
+      - ecr-login
       - run:
-          name: Sync to S3
-          command: aws s3 sync dist/phoenix-view-front/browser/ s3://${AWS_S3_BUCKET}/ --delete
+          name: Pull Docker image from ECR
+          command: |
+            ECR_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/phoenix-view-front
+            docker pull $ECR_URI:${CIRCLE_SHA1}
+      - run:
+          name: Extract static files from image and sync to S3
+          command: |
+            ECR_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/phoenix-view-front
+            docker create --name extract $ECR_URI:${CIRCLE_SHA1}
+            docker cp extract:/usr/share/nginx/html/. ./deploy-dist
+            docker rm extract
+            aws s3 sync ./deploy-dist/ s3://${AWS_S3_BUCKET}/ --delete
       - run:
           name: Invalidate CloudFront cache
           command: |
@@ -84,15 +105,15 @@ jobs:
               --paths "/*"
 
 workflows:
-  build-and-test:
+  build-and-deploy:
     jobs:
       - test
-      - build:
+      - build-and-push:
           requires:
             - test
       - deploy:
           requires:
-            - build
+            - build-and-push
           filters:
             branches:
               only: develop
