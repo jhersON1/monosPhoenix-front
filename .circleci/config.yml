@@ -77,32 +77,36 @@ jobs:
             docker tag phoenix-view-front:latest $ECR_URI:${CIRCLE_SHA1}
             docker push $ECR_URI:${CIRCLE_SHA1}
 
-  deploy:
+  deploy-eks:
     machine:
       image: ubuntu-2204:2024.01.1
+    environment:
+      AWS_DEFAULT_REGION: us-east-1
     steps:
       - checkout
       - aws-cli/setup
-      - ecr-login
       - run:
-          name: Pull Docker image from ECR
+          name: Install kubectl
+          command: |
+            curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.0/2024-05-12/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            sudo mv ./kubectl /usr/local/bin/kubectl
+      - run:
+          name: Configure kubectl for EKS
+          command: |
+            # Se conecta al clúster que creamos previamente con Terraform
+            aws eks update-kubeconfig --region "${AWS_DEFAULT_REGION}" --name "monos-phoenix-cluster"
+      - run:
+          name: Deploy to Kubernetes
           command: |
             ECR_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/phoenix-view-front
-            docker pull $ECR_URI:${CIRCLE_SHA1}
-      - run:
-          name: Extract static files from image and sync to S3
-          command: |
-            ECR_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/phoenix-view-front
-            docker create --name extract $ECR_URI:${CIRCLE_SHA1}
-            docker cp extract:/usr/share/nginx/html/. ./deploy-dist
-            docker rm extract
-            aws s3 sync ./deploy-dist/ s3://${AWS_S3_BUCKET}/ --delete
-      - run:
-          name: Invalidate CloudFront cache
-          command: |
-            aws cloudfront create-invalidation \
-              --distribution-id ${AWS_CF_DISTRIBUTION_ID} \
-              --paths "/*"
+            IMAGE_URI="${ECR_URI}:${CIRCLE_SHA1}"
+            
+            # Actualiza el deployment de Kubernetes con la nueva imagen generada en este run
+            kubectl set image deployment/frontend-deployment frontend=${IMAGE_URI}
+            
+            echo "Verificando el estado del despliegue..."
+            kubectl rollout status deployment/frontend-deployment
 
 workflows:
   build-and-deploy:
@@ -111,9 +115,10 @@ workflows:
       - build-and-push:
           requires:
             - test
-      - deploy:
+      - deploy-eks:
           requires:
             - build-and-push
           filters:
             branches:
               only: develop
+
